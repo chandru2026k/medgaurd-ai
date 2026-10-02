@@ -1,7 +1,7 @@
 """
 interactions.py
 
-Runtime lookup module for the polypharmacy interaction checker.
+Runtime lookup module for the MedGaurd AI interaction checker.
 
 Given two (or more) raw drug name strings as typed by a user, this:
   1. Normalizes each name via normalizer.py (brand -> generic, class

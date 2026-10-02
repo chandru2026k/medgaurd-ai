@@ -1,7 +1,7 @@
 """
 main.py
 
-FastAPI entrypoint for the polypharmacy interaction checker.
+FastAPI entrypoint for the MedGaurd AI interaction checker.
 """
 
 import os
