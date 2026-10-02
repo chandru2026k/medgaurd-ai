@@ -75,6 +75,11 @@ export default function InteractionGraph({ results }) {
     <div className="graph-container">
       <h3 className="graph-title">Interaction Map</h3>
       <svg viewBox="0 0 320 320" className="graph-svg">
+        <defs>
+          <filter id="node-shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="2" stdDeviation="2" floodOpacity="0.15" />
+          </filter>
+        </defs>
         {edges.map((edge) => {
           const color = SEVERITY_COLOR[edge.severity] || "#999";
           const isHovered = hoveredEdge === edge.id;
@@ -92,7 +97,7 @@ export default function InteractionGraph({ results }) {
                 opacity={isHovered ? 1 : 0.75}
                 onMouseEnter={() => setHoveredEdge(edge.id)}
                 onMouseLeave={() => setHoveredEdge(null)}
-                style={{ cursor: "pointer" }}
+                style={{ cursor: "pointer", transition: "stroke-width 0.2s ease, opacity 0.2s ease" }}
               />
               {isHovered && (
                 <text
@@ -114,9 +119,11 @@ export default function InteractionGraph({ results }) {
               cx={node.x}
               cy={node.y}
               r={node.hasInteraction ? 16 : 12}
-              fill={node.hasInteraction ? "#2f6f4f" : "#ccc"}
+              fill={node.hasInteraction ? "#0f6e62" : "#cdd3d1"}
               stroke="white"
               strokeWidth={2}
+              filter="url(#node-shadow)"
+              style={{ transition: "all 0.3s ease" }}
             />
             <text
               x={node.x}

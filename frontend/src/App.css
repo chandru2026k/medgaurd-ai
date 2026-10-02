@@ -28,9 +28,9 @@ body {
 }
 
 .app {
-  max-width: 720px;
+  max-width: 760px;
   margin: 0 auto;
-  padding: 40px 20px 90px;
+  padding: 48px 20px 90px;
 }
 
 .app__header h1 {
@@ -52,29 +52,36 @@ body {
 
 .mode-toggle {
   display: flex;
-  gap: 6px;
-  margin-top: 24px;
-  border-bottom: 1px solid var(--hairline);
-  padding-bottom: 0;
+  gap: 4px;
+  margin-top: 28px;
+  background: #e6efed;
+  padding: 4px;
+  border-radius: 8px;
+  width: fit-content;
 }
 
 .toggle-btn {
   font-family: "Space Grotesk", sans-serif;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  padding: 8px 4px;
-  margin-bottom: -1px;
+  padding: 8px 16px;
   border: none;
-  border-bottom: 2px solid transparent;
+  border-radius: 6px;
   background: transparent;
   color: var(--muted);
   cursor: pointer;
   letter-spacing: 0.02em;
+  transition: all 0.2s ease;
+}
+
+.toggle-btn:hover {
+  color: var(--teal);
 }
 
 .toggle-btn--active {
+  background: var(--card);
   color: var(--teal);
-  border-bottom-color: var(--teal);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
 
 /* ---------- input form ---------- */
@@ -96,49 +103,82 @@ body {
 
 .input-form input {
   flex: 1;
-  padding: 11px 14px;
+  padding: 12px 16px;
   font-size: 0.95rem;
   font-family: "IBM Plex Mono", monospace;
   border: 1px solid var(--hairline);
-  border-radius: 4px;
+  border-radius: 6px;
   background: var(--card);
   color: var(--ink);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
 }
 
 .input-form input:focus,
 .input-form textarea:focus {
-  outline: 2px solid var(--teal);
-  outline-offset: 1px;
+  outline: none;
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(15, 110, 98, 0.15);
 }
 
 .input-form textarea {
   flex: 1;
-  padding: 11px 14px;
-  font-size: 0.92rem;
+  padding: 12px 16px;
+  font-size: 0.95rem;
   border: 1px solid var(--hairline);
-  border-radius: 4px;
+  border-radius: 6px;
   font-family: "IBM Plex Sans", inherit;
   background: var(--card);
   color: var(--ink);
   resize: vertical;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
 }
 
 .input-form button {
-  padding: 11px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
   font-family: "Space Grotesk", sans-serif;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   background: var(--teal);
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   letter-spacing: 0.01em;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.input-form button:hover:not(:disabled) {
+  background: #0c594f;
+  transform: translateY(-1px);
+}
+
+.input-form button:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .input-form button:disabled {
   background: #a9b3af;
   cursor: not-allowed;
+}
+
+/* Spinner Animation */
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 .image-upload {
@@ -156,13 +196,23 @@ body {
 }
 
 .error-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   background: var(--high-bg);
   border: 1px solid var(--high);
   color: var(--high);
-  padding: 10px 14px;
-  border-radius: 4px;
-  margin-bottom: 16px;
-  font-size: 0.9rem;
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+  animation: fadeInDown 0.3s ease;
+}
+
+.error-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
 }
 
 /* ---------- results ---------- */
@@ -185,10 +235,11 @@ body {
 .graph-container {
   background: var(--card);
   border: 1px solid var(--hairline);
-  border-radius: 6px;
-  padding: 18px;
-  margin-bottom: 20px;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
   text-align: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
 }
 
 .graph-title {
@@ -254,10 +305,17 @@ body {
 .result-card {
   background: var(--card);
   border: 1px solid var(--hairline);
-  border-left: 5px solid var(--hairline);
-  border-radius: 4px;
-  padding: 16px 18px;
-  margin-bottom: 14px;
+  border-left: 6px solid var(--hairline);
+  border-radius: 6px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.result-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
 .result-card[data-severity="High"] {
@@ -272,6 +330,13 @@ body {
 
 .result-card--empty {
   border-left-color: #c7cdc8;
+  border-style: dashed;
+  background: transparent;
+  box-shadow: none;
+}
+.result-card--empty:hover {
+  transform: none;
+  box-shadow: none;
 }
 
 .result-card__header {
@@ -388,6 +453,7 @@ body {
   background: var(--teal);
   border-color: var(--teal);
   color: white;
+  box-shadow: 0 1px 3px rgba(15, 110, 98, 0.3);
 }
 
 .explanation-text {
@@ -481,4 +547,19 @@ body {
 
 .score-table__points--neg {
   color: var(--high);
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.score-table, .explanation-text {
+  animation: fadeInDown 0.3s ease-out forwards;
 }

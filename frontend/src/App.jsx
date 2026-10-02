@@ -99,6 +99,11 @@ function ResultCard({ result }) {
           <ConfidenceBadge confidence={result.confidence} />
         </div>
         <p className="result-card__note">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ verticalAlign: 'text-bottom', marginRight: '6px' }}>
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
           No known interaction found in our database. This does not guarantee the
           combination is safe — it may simply be absent from our source data.
         </p>
@@ -215,7 +220,7 @@ export default function App() {
   return (
     <div className="app">
       <header className="app__header">
-        <h1>Polypharmacy Interaction Checker</h1>
+        <h1>MedGaurd AI</h1>
         <p className="app__subtitle">
           Enter medications (brand or generic names) to check for known drug-drug
           interactions.
@@ -281,11 +286,27 @@ export default function App() {
           </div>
         )}
         <button type="submit" disabled={loading}>
-          {loading ? "Checking..." : "Check Interactions"}
+          {loading ? (
+            <>
+              <div className="spinner" />
+              Checking...
+            </>
+          ) : (
+            "Check Interactions"
+          )}
         </button>
       </form>
 
-      {error && <div className="error-banner">{error}</div>}
+      {error && (
+        <div className="error-banner">
+          <svg className="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <polygon points="12 2 22 22 2 22 12 2"></polygon>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          {error}
+        </div>
+      )}
 
       {response && (
         <div className="results">

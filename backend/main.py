@@ -19,7 +19,7 @@ from ocr_processor import extract_text_from_image
 from severity_scorer import compute_severity
 
 app = FastAPI(
-    title="Polypharmacy Interaction Checker API",
+    title="MedGaurd AI API",
     description="Checks a medication list for known drug-drug interactions.",
     version="0.1.0",
 )
