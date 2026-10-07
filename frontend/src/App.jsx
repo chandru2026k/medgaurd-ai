@@ -453,9 +453,9 @@ export default function App() {
               • Barbiturates, Corticosteroids
             </li>
             <li style={{marginBottom: "8px"}}><strong style={{color: "var(--low)"}}>🟢 LOW RISK:</strong><br/>
-              • Amiodarone, Benzodiazepines<br/>
-              • Aspirin, Activase<br/>
-              • Etonogestrel, MS Contin
+              • OMNICEF, Antacids<br/>
+              • Glimepiride, Magnesium Salicylate<br/>
+              • SPRYCEL, Antacids
             </li>
             <li style={{marginBottom: "8px"}}><strong>⚪ NO MATCH (Safe):</strong><br/>
               • Amoxicillin, Tylenol<br/>
