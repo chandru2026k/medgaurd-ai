@@ -564,8 +564,62 @@ body {
   animation: fadeInDown 0.3s ease-out forwards;
 }
 
+
+.app__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-left {
+  text-align: left;
+}
+
+.profile-btn-header {
+  background: #10b981;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.profile-btn-header:hover {
+  background: #059669;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.modal-content {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal-close {
+  float: right;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
 .autocomplete-dropdown {
   position: absolute;
+  top: 100%;
+  left: 0;
   background: white;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -589,34 +643,11 @@ body {
 .input-container {
   position: relative;
   flex: 1;
-  width: 100%;
-}
-
-.profiles-section {
   display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
-  align-items: center;
-  justify-content: center;
 }
 
-.profiles-section select {
-  padding: 8px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-}
-
-.btn-secondary {
-  background: #e2e8f0;
-  color: #334155;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-}
-.btn-secondary:hover {
-  background: #cbd5e1;
+.input-container input {
+  flex: 1;
 }
 
 .pdf-btn {

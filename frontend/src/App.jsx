@@ -298,15 +298,62 @@ export default function App() {
     }
   };
 
+  const [showProfileModal, setShowProfileModal] = useState(false);
+
   return (
     <div className="app">
       <header className="app__header">
-        <h1>MedGaurd AI</h1>
-        <p className="app__subtitle">
-          Enter medications (brand or generic names) to check for known drug-drug
-          interactions.
-        </p>
+        <div className="header-left">
+          <h1>MedGaurd AI</h1>
+          <p className="app__subtitle">
+            Enter medications (brand or generic names) to check for known drug-drug
+            interactions.
+          </p>
+        </div>
+        <button className="profile-btn-header" onClick={() => setShowProfileModal(true)}>
+          My Profile
+        </button>
       </header>
+
+      {showProfileModal && (
+        <div className="modal-overlay" onClick={() => setShowProfileModal(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setShowProfileModal(false)}>&times;</button>
+            <h2>Patient Profiles</h2>
+            <p>Save your current medication list to your profile for easy checking later.</p>
+            
+            <div style={{ margin: "20px 0" }}>
+              <button onClick={saveProfile} style={{ background: "#10b981", color: "white", padding: "8px 12px", border: "none", borderRadius: "4px", cursor: "pointer" }}>
+                Save Current Search as New Profile
+              </button>
+            </div>
+
+            <hr style={{ margin: "20px 0" }}/>
+
+            <h3>Saved Profiles</h3>
+            {profiles.length === 0 ? <p>No profiles saved yet.</p> : (
+              <ul style={{ listStyle: "none", padding: 0 }}>
+                {profiles.map(p => (
+                  <li key={p.id} style={{ borderBottom: "1px solid #eee", padding: "10px 0" }}>
+                    <strong>{p.name}</strong> <br/>
+                    <span style={{ fontSize: "14px", color: "#666" }}>{p.medications.join(", ")}</span>
+                    <br/>
+                    <button 
+                      onClick={() => {
+                        setDrugsInput(p.medications.join(", "));
+                        setShowProfileModal(false);
+                      }}
+                      style={{ marginTop: "8px", background: "#3b82f6", color: "white", padding: "4px 8px", border: "none", borderRadius: "4px", cursor: "pointer" }}
+                    >
+                      Load these medications
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="mode-toggle">
         <button
@@ -336,56 +383,29 @@ export default function App() {
         className={mode === "manual" ? "input-form" : "input-form input-form--note"}
         onSubmit={handleSubmit}
       >
-        {mode === "manual" && profiles.length > 0 && (
-          <div className="profiles-section">
-            <select 
-              value={selectedProfile} 
-              onChange={(e) => {
-                setSelectedProfile(e.target.value);
-                if (e.target.value) {
-                  const p = profiles.find(pr => pr.id.toString() === e.target.value);
-                  if (p) setDrugsInput(p.medications.join(", "));
-                }
-              }}
-            >
-              <option value="">-- Load a saved patient profile --</option>
-              {profiles.map(p => (
-                <option key={p.id} value={p.id}>{p.name}</option>
-              ))}
-            </select>
-          </div>
-        )}
-        
         {mode === "manual" ? (
-          <div>
-            <div className="input-container">
-              <input
-                type="text"
-                value={drugsInput}
-                onChange={handleDrugsInputChange}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                onFocus={handleDrugsInputChange}
-                placeholder="e.g. EQUETRO, ethosuximide, digoxin"
-              />
-              {showSuggestions && (
-                <div className="autocomplete-dropdown">
-                  {suggestions.map(s => (
-                    <div 
-                      key={s} 
-                      className="autocomplete-item" 
-                      onClick={() => selectSuggestion(s)}
-                    >
-                      {s}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            <div style={{marginTop: "10px", textAlign: "right"}}>
-              <button type="button" className="btn-secondary" onClick={saveProfile}>
-                Save to Profile
-              </button>
-            </div>
+          <div className="input-container">
+            <input
+              type="text"
+              value={drugsInput}
+              onChange={handleDrugsInputChange}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+              onFocus={handleDrugsInputChange}
+              placeholder="e.g. EQUETRO, ethosuximide, digoxin"
+            />
+            {showSuggestions && (
+              <div className="autocomplete-dropdown">
+                {suggestions.map(s => (
+                  <div 
+                    key={s} 
+                    className="autocomplete-item" 
+                    onClick={() => selectSuggestion(s)}
+                  >
+                    {s}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         ) : mode === "note" ? (
           <textarea
