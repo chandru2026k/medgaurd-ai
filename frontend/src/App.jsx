@@ -176,16 +176,17 @@ function ResultCard({ result }) {
       </div>
     );
   }
+  const displaySeverity = result.computed_severity || result.severity;
 
   return (
-    <div className="result-card" data-severity={result.severity}>
+    <div className="result-card" data-severity={displaySeverity}>
       <div className="result-card__header">
         {result.drug_1} + {result.drug_2}
         <ConfidenceBadge confidence={result.confidence} />
       </div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
         <div className="result-card__meta" style={{ margin: 0 }}>
-          <span className="severity-pill">{result.severity} severity</span>
+          <span className="severity-pill">{displaySeverity} severity</span>
           <span className="relation-type">{result.relation_type}</span>
           <span className="mention-count">
             seen {result.mention_count} time{result.mention_count === 1 ? "" : "s"} in source data
@@ -198,7 +199,7 @@ function ResultCard({ result }) {
 
       <ScoreBreakdown breakdown={result.score_breakdown} />
       
-      <MechanismFlowchart drug1={result.drug_1} drug2={result.drug_2} severity={result.computed_severity || result.severity} />
+      <MechanismFlowchart drug1={result.drug_1} drug2={result.drug_2} severity={displaySeverity} />
 
       {result.evidence_sentence && (
         <p className="evidence">“{result.evidence_sentence}”</p>
