@@ -34,7 +34,7 @@ export default function Analytics() {
   return (
     <div style={{ padding: "20px", background: "white", borderRadius: "12px", boxShadow: "0 4px 6px rgba(0,0,0,0.05)", marginTop: "20px" }}>
       <h2 style={{ borderBottom: "2px solid #eee", paddingBottom: "10px", marginBottom: "20px" }}>
-        Model Architecture & Dataset Analytics
+        Analytics Dashboard
       </h2>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginBottom: "40px" }}>

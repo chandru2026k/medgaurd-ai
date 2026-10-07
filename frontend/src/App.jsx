@@ -371,8 +371,11 @@ export default function App() {
         </div>
         <div style={{display: "flex", flexDirection: "column", alignItems: "flex-end"}}>
           <div style={{display: "flex", gap: "10px"}}>
+            <button className="profile-btn-header" style={{background: "#64748b"}} onClick={() => setMode("manual")}>
+              🏠 Home
+            </button>
             <button className="profile-btn-header" style={{background: "#3b82f6"}} onClick={() => setMode("analytics")}>
-              📊 Model Analytics
+              📊 Dashboard
             </button>
             <button className="profile-btn-header" onClick={() => setShowProfileModal(true)}>
               {activeProfile ? `👤 ${activeProfile.name}` : "My Profile"}
