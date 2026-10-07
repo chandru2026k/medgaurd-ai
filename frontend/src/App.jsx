@@ -441,10 +441,25 @@ export default function App() {
             Try searching these real combinations to see different risk levels:
           </p>
           <ul style={{ paddingLeft: "15px", margin: 0, fontSize: "13px" }}>
-            <li><strong style={{color: "var(--high)"}}>🔴 HIGH:</strong> Aspirin & Flurbiprofen</li>
-            <li><strong style={{color: "var(--moderate)"}}>🟡 MODERATE:</strong> Ibuprofen & Heparin</li>
-            <li><strong style={{color: "var(--low)"}}>🟢 LOW:</strong> Amiodarone & Benzodiazepines</li>
-            <li><strong>⚪ NONE:</strong> Amoxicillin & Tylenol</li>
+            <li style={{marginBottom: "8px"}}><strong style={{color: "var(--high)"}}>🔴 HIGH RISK:</strong><br/>
+              • Aspirin, Flurbiprofen<br/>
+              • Chloroquine, Kaolin<br/>
+              • Acarbose, Pancreatin
+            </li>
+            <li style={{marginBottom: "8px"}}><strong style={{color: "var(--moderate)"}}>🟡 MODERATE:</strong><br/>
+              • Ibuprofen, Heparin<br/>
+              • Digoxin, Sympathomimetics<br/>
+              • Barbiturates, Corticosteroids
+            </li>
+            <li style={{marginBottom: "8px"}}><strong style={{color: "var(--low)"}}>🟢 LOW RISK:</strong><br/>
+              • Amiodarone, Benzodiazepines<br/>
+              • Aspirin, Activase<br/>
+              • Etonogestrel, MS Contin
+            </li>
+            <li style={{marginBottom: "8px"}}><strong>⚪ NO MATCH (Safe):</strong><br/>
+              • Amoxicillin, Tylenol<br/>
+              • Vitamin C, Magnesium
+            </li>
           </ul>
         </div>
         {activeProfile && (
