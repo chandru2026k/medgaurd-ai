@@ -54,7 +54,21 @@ function ExplanationToggle({ result }) {
           For Doctors
         </button>
       </div>
-      <p className="explanation-text">{text}</p>
+      <div className="explanation-text">
+        {text.split('\n\n').map((paragraph, idx) => {
+          // Simple bold rendering for **text**
+          const parts = paragraph.split(/(\*\*.*?\*\*)/g);
+          return (
+            <p key={idx} style={{ marginBottom: "10px" }}>
+              {parts.map((part, pIdx) => 
+                part.startsWith('**') && part.endsWith('**') 
+                  ? <strong key={pIdx}>{part.slice(2, -2)}</strong>
+                  : part
+              )}
+            </p>
+          );
+        })}
+      </div>
     </div>
   );
 }
