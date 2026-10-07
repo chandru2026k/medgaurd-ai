@@ -152,6 +152,19 @@ def save_profile(profile: PatientProfile):
         conn.commit()
     return {"status": "saved"}
 
+class ProfileUpdate(BaseModel):
+    medications: List[str]
+
+@app.put("/profiles/{profile_id}")
+def update_profile(profile_id: int, update: ProfileUpdate):
+    with get_db_conn() as conn:
+        conn.execute(
+            "UPDATE patient_profiles SET medications = ? WHERE id = ?",
+            (json.dumps(update.medications), profile_id)
+        )
+        conn.commit()
+    return {"status": "updated"}
+
 @app.get("/profiles")
 def get_profiles():
     with get_db_conn() as conn:

@@ -215,10 +215,12 @@ export default function App() {
   const [profileGenderInput, setProfileGenderInput] = useState("");
   const [profileDobInput, setProfileDobInput] = useState("");
 
+  const [activeProfile, setActiveProfile] = useState(null);
+
   const saveProfile = async () => {
     if (!profileNameInput.trim()) return alert("Please enter a profile name.");
     let drugs = [];
-    if (mode === "manual") {
+    if (mode === "manual" && drugsInput.trim()) {
         drugs = drugsInput.split(",").map((d) => d.trim()).filter(Boolean);
     } else if (response && response.results) {
         // If they are on a different mode and have results, save the checked drugs
@@ -230,7 +232,6 @@ export default function App() {
         drugs = Array.from(allDrugs);
     }
     
-    if (drugs.length < 1) return alert("No medications found to save.");
     await axios.post(API_URL_PROFILES, { 
       name: profileNameInput.trim(), 
       age: profileAgeInput ? parseInt(profileAgeInput) : null,
@@ -238,12 +239,18 @@ export default function App() {
       dob: profileDobInput.trim() || null,
       medications: drugs 
     });
-    alert("Profile saved!");
+    alert("Profile saved! It will automatically sync as you check interactions.");
     setProfileNameInput("");
     setProfileAgeInput("");
     setProfileGenderInput("");
     setProfileDobInput("");
-    fetchProfiles();
+    
+    // Refresh and try to set the latest as active
+    axios.get(API_URL_PROFILES).then(res => {
+      const data = res.data || [];
+      setProfiles(data);
+      if (data.length > 0) setActiveProfile(data[data.length - 1]);
+    }).catch(() => {});
   };
 
   const generatePDF = () => {
@@ -314,6 +321,26 @@ export default function App() {
         });
       }
       setResponse(res.data);
+      
+      // Auto-sync logic
+      if (activeProfile) {
+          const allDrugs = new Set(activeProfile.medications || []);
+          if (mode === "manual") {
+              const typed = drugsInput.split(",").map(d => d.trim()).filter(Boolean);
+              typed.forEach(d => allDrugs.add(d));
+          } else if (res.data && res.data.results) {
+              res.data.results.forEach(r => {
+                  allDrugs.add(r.drug_1);
+                  allDrugs.add(r.drug_2);
+              });
+          }
+          const updatedDrugs = Array.from(allDrugs);
+          axios.put(`${API_URL_PROFILES}/${activeProfile.id}`, { medications: updatedDrugs }).then(() => {
+              setActiveProfile({...activeProfile, medications: updatedDrugs});
+              fetchProfiles();
+          }).catch(console.error);
+      }
+      
     } catch (err) {
       setError(
         err.response?.data?.detail ||
@@ -446,6 +473,32 @@ export default function App() {
         className={mode === "manual" ? "input-form" : "input-form input-form--note"}
         onSubmit={handleSubmit}
       >
+        {mode === "manual" && profiles.length > 0 && (
+          <div className="profiles-section" style={{display: "flex", gap: "10px", marginBottom: "15px", alignItems: "center"}}>
+            <select 
+              value={activeProfile ? activeProfile.id : ""} 
+              onChange={(e) => {
+                if (!e.target.value) {
+                  setActiveProfile(null);
+                  setDrugsInput("");
+                  return;
+                }
+                const p = profiles.find(pr => pr.id.toString() === e.target.value);
+                if (p) {
+                  setActiveProfile(p);
+                  setDrugsInput(p.medications.join(", "));
+                }
+              }}
+              style={{padding: "8px", borderRadius: "4px", border: "1px solid #ccc", minWidth: "250px"}}
+            >
+              <option value="">-- No Active Profile --</option>
+              {profiles.map(p => (
+                <option key={p.id} value={p.id}>{p.name} {p.age ? `(${p.age})` : ""}</option>
+              ))}
+            </select>
+            {activeProfile && <span style={{fontSize: "13px", color: "#10b981", fontWeight: "bold"}}>✓ Auto-sync ON</span>}
+          </div>
+        )}
         {mode === "manual" ? (
           <div className="input-container">
             <input
