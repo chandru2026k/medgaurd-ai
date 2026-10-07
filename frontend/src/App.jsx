@@ -368,58 +368,82 @@ export default function App() {
             interactions.
           </p>
         </div>
-        <button className="profile-btn-header" onClick={() => setShowProfileModal(true)}>
-          My Profile
-        </button>
+        <div style={{display: "flex", flexDirection: "column", alignItems: "flex-end"}}>
+          <button className="profile-btn-header" onClick={() => setShowProfileModal(true)}>
+            {activeProfile ? `👤 ${activeProfile.name}` : "My Profile"}
+          </button>
+          {activeProfile && <span style={{fontSize: "12px", color: "#10b981", marginTop: "4px", fontWeight: "bold"}}>✓ Auto-sync ON</span>}
+        </div>
       </header>
 
       {showProfileModal && (
         <div className="modal-overlay" onClick={() => setShowProfileModal(false)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <button className="modal-close" onClick={() => setShowProfileModal(false)}>&times;</button>
-            <h2>Patient Profiles</h2>
-            <p>Save your current medication list to your profile for easy checking later.</p>
-            
-            <div style={{ margin: "20px 0", display: "flex", flexDirection: "column", gap: "10px" }}>
-              <input 
-                type="text" 
-                placeholder="Enter patient name..." 
-                value={profileNameInput}
-                onChange={e => setProfileNameInput(e.target.value)}
-                style={{ padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-              />
-              <div style={{ display: "flex", gap: "10px" }}>
-                <input 
-                  type="number" 
-                  placeholder="Age" 
-                  value={profileAgeInput}
-                  onChange={e => setProfileAgeInput(e.target.value)}
-                  style={{ flex: 1, padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-                />
-                <select 
-                  value={profileGenderInput}
-                  onChange={e => setProfileGenderInput(e.target.value)}
-                  style={{ flex: 1, padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
+            <h2>{activeProfile ? `Profile: ${activeProfile.name}` : "Patient Profiles"}</h2>
+            {activeProfile && (
+              <div style={{ background: "#f0fdf4", padding: "12px", borderRadius: "8px", marginBottom: "20px", border: "1px solid #bbf7d0" }}>
+                <strong>Current Active Profile</strong><br/>
+                <span style={{ fontSize: "14px", color: "#374151" }}>
+                  {activeProfile.age ? `${activeProfile.age} yrs` : ""} {activeProfile.gender ? `• ${activeProfile.gender}` : ""} {activeProfile.dob ? `• DOB: ${activeProfile.dob}` : ""}
+                </span><br/>
+                <span style={{ fontSize: "14px", color: "#166534", fontWeight: "500" }}>Medication History:</span>
+                <p style={{ fontSize: "14px", color: "#374151", margin: "4px 0 0 0" }}>
+                  {activeProfile.medications.length > 0 ? activeProfile.medications.join(", ") : "No medications recorded yet."}
+                </p>
+                <button 
+                  onClick={() => { setActiveProfile(null); setDrugsInput(""); setShowProfileModal(false); }}
+                  style={{ marginTop: "10px", background: "#ef4444", color: "white", padding: "4px 8px", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "12px" }}
                 >
-                  <option value="">Gender</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
-                </select>
-                <input 
-                  type="date" 
-                  title="Date of Birth"
-                  value={profileDobInput}
-                  onChange={e => setProfileDobInput(e.target.value)}
-                  style={{ flex: 1, padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-                />
+                  Sign Out / Clear Active Profile
+                </button>
               </div>
-              <button onClick={saveProfile} style={{ background: "#10b981", color: "white", padding: "10px 12px", border: "none", borderRadius: "4px", cursor: "pointer", width: "100%", marginTop: "10px" }}>
-                Save Profile
-              </button>
-            </div>
-
-            <hr style={{ margin: "20px 0" }}/>
+            )}
+            
+            {!activeProfile && (
+              <>
+                <p>Create a new profile to automatically save your medication history.</p>
+                <div style={{ margin: "20px 0", display: "flex", flexDirection: "column", gap: "10px" }}>
+                  <input 
+                    type="text" 
+                    placeholder="Enter patient name..." 
+                    value={profileNameInput}
+                    onChange={e => setProfileNameInput(e.target.value)}
+                    style={{ padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
+                  />
+                  <div style={{ display: "flex", gap: "10px" }}>
+                    <input 
+                      type="number" 
+                      placeholder="Age" 
+                      value={profileAgeInput}
+                      onChange={e => setProfileAgeInput(e.target.value)}
+                      style={{ flex: 1, padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
+                    />
+                    <select 
+                      value={profileGenderInput}
+                      onChange={e => setProfileGenderInput(e.target.value)}
+                      style={{ flex: 1, padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
+                    >
+                      <option value="">Gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
+                    <input 
+                      type="date" 
+                      title="Date of Birth"
+                      value={profileDobInput}
+                      onChange={e => setProfileDobInput(e.target.value)}
+                      style={{ flex: 1, padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
+                    />
+                  </div>
+                  <button onClick={saveProfile} style={{ background: "#10b981", color: "white", padding: "10px 12px", border: "none", borderRadius: "4px", cursor: "pointer", width: "100%", marginTop: "10px" }}>
+                    Save Profile
+                  </button>
+                </div>
+                <hr style={{ margin: "20px 0" }}/>
+              </>
+            )}
 
             <h3>Saved Profiles</h3>
             {profiles.length === 0 ? <p>No profiles saved yet.</p> : (
@@ -433,15 +457,18 @@ export default function App() {
                     <br/>
                     <span style={{ fontSize: "14px", color: "#666" }}>{p.medications.join(", ")}</span>
                     <br/>
-                    <button 
-                      onClick={() => {
-                        setDrugsInput(p.medications.join(", "));
-                        setShowProfileModal(false);
-                      }}
-                      style={{ marginTop: "8px", background: "#3b82f6", color: "white", padding: "4px 8px", border: "none", borderRadius: "4px", cursor: "pointer" }}
-                    >
-                      Load these medications
-                    </button>
+                    {activeProfile?.id !== p.id && (
+                      <button 
+                        onClick={() => {
+                          setActiveProfile(p);
+                          setDrugsInput(p.medications.join(", "));
+                          setShowProfileModal(false);
+                        }}
+                        style={{ marginTop: "8px", background: "#3b82f6", color: "white", padding: "4px 8px", border: "none", borderRadius: "4px", cursor: "pointer" }}
+                      >
+                        Set as Active Profile
+                      </button>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -478,32 +505,6 @@ export default function App() {
         className={mode === "manual" ? "input-form" : "input-form input-form--note"}
         onSubmit={handleSubmit}
       >
-        {mode === "manual" && profiles.length > 0 && (
-          <div className="profiles-section" style={{display: "flex", gap: "10px", marginBottom: "15px", alignItems: "center"}}>
-            <select 
-              value={activeProfile ? activeProfile.id : ""} 
-              onChange={(e) => {
-                if (!e.target.value) {
-                  setActiveProfile(null);
-                  setDrugsInput("");
-                  return;
-                }
-                const p = profiles.find(pr => pr.id.toString() === e.target.value);
-                if (p) {
-                  setActiveProfile(p);
-                  setDrugsInput(p.medications.join(", "));
-                }
-              }}
-              style={{padding: "8px", borderRadius: "4px", border: "1px solid #ccc", minWidth: "250px"}}
-            >
-              <option value="">-- No Active Profile --</option>
-              {profiles.map(p => (
-                <option key={p.id} value={p.id}>{p.name} {p.age ? `(${p.age})` : ""}</option>
-              ))}
-            </select>
-            {activeProfile && <span style={{fontSize: "13px", color: "#10b981", fontWeight: "bold"}}>✓ Auto-sync ON</span>}
-          </div>
-        )}
         {mode === "manual" ? (
           <div className="input-container">
             <input
