@@ -210,13 +210,27 @@ export default function App() {
     setShowSuggestions(false);
   };
 
+  const [profileNameInput, setProfileNameInput] = useState("");
+
   const saveProfile = async () => {
-    const name = prompt("Enter patient name for this profile:");
-    if (!name) return;
-    const drugs = drugsInput.split(",").map((d) => d.trim()).filter(Boolean);
-    if (drugs.length < 1) return alert("Enter some drugs first.");
-    await axios.post(API_URL_PROFILES, { name, medications: drugs });
+    if (!profileNameInput.trim()) return alert("Please enter a profile name.");
+    let drugs = [];
+    if (mode === "manual") {
+        drugs = drugsInput.split(",").map((d) => d.trim()).filter(Boolean);
+    } else if (response && response.results) {
+        // If they are on a different mode and have results, save the checked drugs
+        const allDrugs = new Set();
+        response.results.forEach(r => {
+            allDrugs.add(r.drug_1);
+            allDrugs.add(r.drug_2);
+        });
+        drugs = Array.from(allDrugs);
+    }
+    
+    if (drugs.length < 1) return alert("No medications found to save.");
+    await axios.post(API_URL_PROFILES, { name: profileNameInput.trim(), medications: drugs });
     alert("Profile saved!");
+    setProfileNameInput("");
     fetchProfiles();
   };
 
@@ -322,9 +336,16 @@ export default function App() {
             <h2>Patient Profiles</h2>
             <p>Save your current medication list to your profile for easy checking later.</p>
             
-            <div style={{ margin: "20px 0" }}>
-              <button onClick={saveProfile} style={{ background: "#10b981", color: "white", padding: "8px 12px", border: "none", borderRadius: "4px", cursor: "pointer" }}>
-                Save Current Search as New Profile
+            <div style={{ margin: "20px 0", display: "flex", gap: "10px", alignItems: "center" }}>
+              <input 
+                type="text" 
+                placeholder="Enter patient name..." 
+                value={profileNameInput}
+                onChange={e => setProfileNameInput(e.target.value)}
+                style={{ flex: 1, padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
+              />
+              <button onClick={saveProfile} style={{ background: "#10b981", color: "white", padding: "8px 12px", border: "none", borderRadius: "4px", cursor: "pointer", whiteSpace: "nowrap" }}>
+                Save Profile
               </button>
             </div>
 
