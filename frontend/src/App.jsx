@@ -311,32 +311,61 @@ export default function App() {
   };
 
   return (
-    <div className="app">
-      <header className="app__header">
-        <div className="header-left">
-          <h1 onClick={() => setMode("manual")} style={{cursor: "pointer"}}>MedGaurd AI</h1>
-          <p className="app__subtitle">
-            Enter medications (brand or generic names) to check for known drug-drug
-            interactions.
-          </p>
+    <div className="app-layout">
+      <aside className="app-sidebar">
+        <div className="sidebar-widget">
+          <h3>Quick Tips</h3>
+          <p>Always double-check newly prescribed medications with your active list.</p>
+          <p>Avoid mixing NSAIDs (like Ibuprofen) with blood thinners (like Warfarin) unless advised.</p>
         </div>
-        <div style={{display: "flex", flexDirection: "column", alignItems: "flex-end"}}>
-          <div style={{display: "flex", gap: "10px"}}>
-            <button className="profile-btn-header" style={{background: "#64748b"}} onClick={() => setMode("manual")}>
-              🏠 Home
-            </button>
-            <button className="profile-btn-header" style={{background: "#3b82f6"}} onClick={() => setMode("analytics")}>
-              📊 Dashboard
-            </button>
-            <button className="profile-btn-header" style={{background: "#10b981"}} onClick={() => setMode("profile")}>
-              {activeProfile ? `👤 ${activeProfile.name}` : "My Profile"}
-            </button>
+        <div className="sidebar-widget">
+          <h3>Common Interactions</h3>
+          <ul>
+            <li><strong>Paracetamol & Alcohol:</strong> Liver toxicity</li>
+            <li><strong>Antibiotics & Dairy:</strong> Reduced absorption</li>
+            <li><strong>Antihistamines & Sedatives:</strong> Excessive drowsiness</li>
+          </ul>
+        </div>
+        {activeProfile && (
+          <div className="sidebar-widget profile-summary">
+            <h3>Active Profile</h3>
+            <p><strong>{activeProfile.name}</strong></p>
+            <p>{activeProfile.medications.length} meds active</p>
+            {activeProfile.allergies && (
+               <div style={{color: "red", fontSize: "12px", marginTop: "10px"}}>
+                 <strong>Allergies:</strong> {activeProfile.allergies}
+               </div>
+            )}
           </div>
-          {activeProfile && <span style={{fontSize: "12px", color: "#10b981", marginTop: "4px", fontWeight: "bold"}}>✓ Auto-sync ON</span>}
-        </div>
-      </header>
+        )}
+      </aside>
 
-      {mode === "analytics" ? (
+      <main className="app-main">
+        <header className="app__header">
+          <div className="header-left">
+            <h1 onClick={() => setMode("manual")} style={{cursor: "pointer"}}>MedGaurd AI</h1>
+            <p className="app__subtitle">
+              Enter medications (brand or generic names) to check for known drug-drug
+              interactions.
+            </p>
+          </div>
+          <div style={{display: "flex", flexDirection: "column", alignItems: "flex-end"}}>
+            <div style={{display: "flex", gap: "10px"}}>
+              <button className="profile-btn-header" style={{background: "#64748b"}} onClick={() => setMode("manual")}>
+                🏠 Home
+              </button>
+              <button className="profile-btn-header" style={{background: "#3b82f6"}} onClick={() => setMode("analytics")}>
+                📊 Dashboard
+              </button>
+              <button className="profile-btn-header" style={{background: "#10b981"}} onClick={() => setMode("profile")}>
+                {activeProfile ? `👤 ${activeProfile.name}` : "My Profile"}
+              </button>
+            </div>
+            {activeProfile && <span style={{fontSize: "12px", color: "#10b981", marginTop: "4px", fontWeight: "bold"}}>✓ Auto-sync ON</span>}
+          </div>
+        </header>
+
+        {mode === "analytics" ? (
         <Analytics />
       ) : mode === "profile" ? (
         <ProfilePage 
@@ -468,6 +497,7 @@ export default function App() {
       )}
         </>
       )}
+      </main>
     </div>
   );
 }
