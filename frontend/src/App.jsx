@@ -177,16 +177,14 @@ export default function App() {
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   const [profiles, setProfiles] = useState([]);
-  const [selectedProfile, setSelectedProfile] = useState("");
-
   useEffect(() => {
     axios.get(API_URL_DICT).then(res => setDictionary(res.data.words || [])).catch(() => {});
     fetchProfiles();
   }, []);
 
-  const fetchProfiles = () => {
+  function fetchProfiles() {
     axios.get(API_URL_PROFILES).then(res => setProfiles(res.data || [])).catch(() => {});
-  };
+  }
 
   const handleDrugsInputChange = (e) => {
     const val = e.target.value;
@@ -312,6 +310,7 @@ export default function App() {
     }
   };
 
+  return (
     <div className="app">
       <header className="app__header">
         <div className="header-left">
