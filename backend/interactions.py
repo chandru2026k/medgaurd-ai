@@ -116,8 +116,13 @@ class InteractionDB:
         candidates = []
         if d1.is_class and d1.class_members:
             candidates.extend((m, d2.normalized) for m in d1.class_members)
+        if getattr(d1, "parent_classes", None):
+            candidates.extend((c, d2.normalized) for c in d1.parent_classes)
+            
         if d2.is_class and d2.class_members:
             candidates.extend((d1.normalized, m) for m in d2.class_members)
+        if getattr(d2, "parent_classes", None):
+            candidates.extend((d1.normalized, c) for c in d2.parent_classes)
 
         for a, b in candidates:
             rows = self._lookup_pair(a, b)
@@ -133,7 +138,7 @@ class InteractionDB:
                     evidence_sentence=best.get("evidence_sentence"),
                     confidence=CONFIDENCE_CLASS_FALLBACK,
                     note=(
-                        f"No direct match found; matched via class member "
+                        f"No direct match found; matched via class level "
                         f"'{a if a != d1.normalized else b}'."
                     ),
                 )

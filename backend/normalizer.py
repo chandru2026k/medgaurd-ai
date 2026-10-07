@@ -216,9 +216,13 @@ DRUG_CLASSES = {
 
 # Flat alias -> canonical class lookup, built once at import time.
 _CLASS_ALIAS_LOOKUP = {}
+_MEMBER_TO_CLASSES = {}
 for canonical, spec in DRUG_CLASSES.items():
+    _CLASS_ALIAS_LOOKUP[canonical] = canonical
     for alias in spec["aliases"]:
         _CLASS_ALIAS_LOOKUP[alias] = canonical
+    for member in spec["members"]:
+        _MEMBER_TO_CLASSES.setdefault(member.lower(), []).append(canonical)
 
 # ---------------------------------------------------------------------------
 # 3. Known brand names that showed up as high-frequency "unresolved" in
@@ -242,7 +246,7 @@ class NormalizedDrug:
     match_type: str         # "brand" | "class" | "fuzzy_brand" | "fuzzy_class" | "assumed_generic" | "unresolved"
     is_class: bool = False
     class_members: list = None   # populated only when is_class is True
-
+    parent_classes: list = None  # populated if this generic drug is a member of any class
 
 def _strip_artifacts(name: str) -> str:
     """Remove trademark/registered symbols and stray artifacts like the
@@ -280,7 +284,8 @@ def normalize_drug(raw_name: str) -> NormalizedDrug:
     # 1. Exact brand match (checked first — brand names are the most
     #    specific/confident match type)
     if lower in BRAND_TO_GENERIC:
-        return NormalizedDrug(raw_name, cleaned, BRAND_TO_GENERIC[lower], "brand")
+        generic = BRAND_TO_GENERIC[lower]
+        return NormalizedDrug(raw_name, cleaned, generic, "brand", parent_classes=_MEMBER_TO_CLASSES.get(generic.lower()))
 
     # 2. Drug class — exact alias match (both raw-lower and the extra
     #    normalized text, since alias lists are written without parens/hyphens)
@@ -309,7 +314,8 @@ def normalize_drug(raw_name: str) -> NormalizedDrug:
         )
         if match:
             matched_key = match[0]
-            return NormalizedDrug(raw_name, cleaned, BRAND_TO_GENERIC[matched_key], "fuzzy_brand")
+            generic = BRAND_TO_GENERIC[matched_key]
+            return NormalizedDrug(raw_name, cleaned, generic, "fuzzy_brand", parent_classes=_MEMBER_TO_CLASSES.get(generic.lower()))
 
     # 4. Fuzzy class alias match (catches typos/minor drift not in the
     #    alias list, e.g. "monoamine oxi-dase inhibitors")
@@ -330,10 +336,10 @@ def normalize_drug(raw_name: str) -> NormalizedDrug:
     #    erythromycin, etc.). Reject obviously non-drug fragments
     #    (too short / no letters) as genuinely unresolved.
     if len(lower) >= 3 and re.search(r"[a-z]{3,}", lower):
-        return NormalizedDrug(raw_name, cleaned, lower, "assumed_generic")
+        return NormalizedDrug(raw_name, cleaned, lower, "assumed_generic", parent_classes=_MEMBER_TO_CLASSES.get(lower))
 
     # 6. Genuinely unresolved (stray fragments like "T.A.")
-    return NormalizedDrug(raw_name, cleaned, lower, "unresolved")
+    return NormalizedDrug(raw_name, cleaned, lower, "unresolved", parent_classes=_MEMBER_TO_CLASSES.get(lower))
 
 
 def normalize_drugs(drugs: list) -> list:
