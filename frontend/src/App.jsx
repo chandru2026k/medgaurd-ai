@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
+import jsPDF from "jspdf";
 import "./App.css";
 import InteractionGraph from "./InteractionGraph";
 
 const API_URL_MANUAL = "http://127.0.0.1:8000/check-interactions";
 const API_URL_EXTRACT = "http://127.0.0.1:8000/extract-and-check";
 const API_URL_OCR = "http://127.0.0.1:8000/ocr-and-check";
+const API_URL_DICT = "http://127.0.0.1:8000/dictionary";
+const API_URL_PROFILES = "http://127.0.0.1:8000/profiles";
 
 function ConfidenceBadge({ confidence }) {
   const label =
@@ -167,6 +170,84 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const [dictionary, setDictionary] = useState([]);
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const [profiles, setProfiles] = useState([]);
+  const [selectedProfile, setSelectedProfile] = useState("");
+
+  useEffect(() => {
+    axios.get(API_URL_DICT).then(res => setDictionary(res.data.words || [])).catch(() => {});
+    fetchProfiles();
+  }, []);
+
+  const fetchProfiles = () => {
+    axios.get(API_URL_PROFILES).then(res => setProfiles(res.data || [])).catch(() => {});
+  };
+
+  const handleDrugsInputChange = (e) => {
+    const val = e.target.value;
+    setDrugsInput(val);
+    
+    // Autocomplete logic for the last token
+    const parts = val.split(",");
+    const lastPart = parts[parts.length - 1].trimStart();
+    if (lastPart.length > 1) {
+      const filtered = dictionary.filter(w => w.toLowerCase().startsWith(lastPart.toLowerCase())).slice(0, 5);
+      setSuggestions(filtered);
+      setShowSuggestions(filtered.length > 0);
+    } else {
+      setShowSuggestions(false);
+    }
+  };
+
+  const selectSuggestion = (word) => {
+    const parts = drugsInput.split(",");
+    parts.pop(); // remove the partial word
+    const newStr = parts.join(",") + (parts.length > 0 ? ", " : "") + word + ", ";
+    setDrugsInput(newStr);
+    setShowSuggestions(false);
+  };
+
+  const saveProfile = async () => {
+    const name = prompt("Enter patient name for this profile:");
+    if (!name) return;
+    const drugs = drugsInput.split(",").map((d) => d.trim()).filter(Boolean);
+    if (drugs.length < 1) return alert("Enter some drugs first.");
+    await axios.post(API_URL_PROFILES, { name, medications: drugs });
+    alert("Profile saved!");
+    fetchProfiles();
+  };
+
+  const generatePDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text("MedGaurd AI - Interaction Report", 20, 20);
+    doc.setFontSize(12);
+    doc.text(`Drugs checked: ${response.drug_count}`, 20, 30);
+    doc.text(`Interactions found: ${response.interactions_found}`, 20, 40);
+    
+    let y = 50;
+    response.results.forEach(r => {
+      if (y > 270) {
+        doc.addPage();
+        y = 20;
+      }
+      doc.text(`- ${r.drug_1} + ${r.drug_2}: ${r.found ? r.severity + " severity" : "No known interaction"}`, 20, y);
+      if (r.found && r.evidence_sentence) {
+        y += 10;
+        doc.setFontSize(10);
+        const lines = doc.splitTextToSize(r.evidence_sentence, 170);
+        doc.text(lines, 25, y);
+        y += lines.length * 5;
+        doc.setFontSize(12);
+      }
+      y += 10;
+    });
+    doc.save("MedGaurd_Report.pdf");
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
@@ -255,13 +336,57 @@ export default function App() {
         className={mode === "manual" ? "input-form" : "input-form input-form--note"}
         onSubmit={handleSubmit}
       >
+        {mode === "manual" && profiles.length > 0 && (
+          <div className="profiles-section">
+            <select 
+              value={selectedProfile} 
+              onChange={(e) => {
+                setSelectedProfile(e.target.value);
+                if (e.target.value) {
+                  const p = profiles.find(pr => pr.id.toString() === e.target.value);
+                  if (p) setDrugsInput(p.medications.join(", "));
+                }
+              }}
+            >
+              <option value="">-- Load a saved patient profile --</option>
+              {profiles.map(p => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
+        
         {mode === "manual" ? (
-          <input
-            type="text"
-            value={drugsInput}
-            onChange={(e) => setDrugsInput(e.target.value)}
-            placeholder="e.g. EQUETRO, ethosuximide, digoxin"
-          />
+          <div>
+            <div className="input-container">
+              <input
+                type="text"
+                value={drugsInput}
+                onChange={handleDrugsInputChange}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                onFocus={handleDrugsInputChange}
+                placeholder="e.g. EQUETRO, ethosuximide, digoxin"
+              />
+              {showSuggestions && (
+                <div className="autocomplete-dropdown">
+                  {suggestions.map(s => (
+                    <div 
+                      key={s} 
+                      className="autocomplete-item" 
+                      onClick={() => selectSuggestion(s)}
+                    >
+                      {s}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div style={{marginTop: "10px", textAlign: "right"}}>
+              <button type="button" className="btn-secondary" onClick={saveProfile}>
+                Save to Profile
+              </button>
+            </div>
+          </div>
         ) : mode === "note" ? (
           <textarea
             value={noteInput}
@@ -315,6 +440,10 @@ export default function App() {
             {response.pairs_checked === 1 ? "" : "s"} across {response.drug_count}{" "}
             medications — <strong>{response.interactions_found}</strong> interaction
             {response.interactions_found === 1 ? "" : "s"} found.
+            
+            <button className="pdf-btn" onClick={generatePDF}>
+              Download PDF Report
+            </button>
           </div>
 
           <InteractionGraph results={response.results} />

@@ -563,3 +563,72 @@ body {
 .score-table, .explanation-text {
   animation: fadeInDown 0.3s ease-out forwards;
 }
+
+.autocomplete-dropdown {
+  position: absolute;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  width: 100%;
+  z-index: 1000;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  text-align: left;
+}
+
+.autocomplete-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  color: #333;
+}
+.autocomplete-item:hover, .autocomplete-item.active {
+  background: #f0f4f8;
+}
+
+.input-container {
+  position: relative;
+  flex: 1;
+  width: 100%;
+}
+
+.profiles-section {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  align-items: center;
+  justify-content: center;
+}
+
+.profiles-section select {
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.btn-secondary {
+  background: #e2e8f0;
+  color: #334155;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+.btn-secondary:hover {
+  background: #cbd5e1;
+}
+
+.pdf-btn {
+  background: #ef4444;
+  color: white;
+  float: right;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.pdf-btn:hover {
+  background: #dc2828;
+}

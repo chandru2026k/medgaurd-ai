@@ -113,14 +113,45 @@ def _to_interaction_out(result) -> InteractionOut:
     )
 
 
+from database import get_db_conn
+from normalizer import BRAND_TO_GENERIC, DRUG_CLASSES
+from interactions import _CSV_PATH
+import pandas as pd
+import json
+
 @app.on_event("startup")
 def _preload_db():
     get_db()
 
-
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+@app.get("/dictionary")
+def get_dictionary():
+    df = pd.read_csv(_CSV_PATH)
+    generics = set(df["drug_1"].dropna().str.lower().tolist() + df["drug_2"].dropna().str.lower().tolist())
+    brands = set(BRAND_TO_GENERIC.keys())
+    classes = set(DRUG_CLASSES.keys())
+    return {"words": sorted(list(generics | brands | classes))}
+
+class PatientProfile(BaseModel):
+    name: str
+    medications: List[str]
+
+@app.post("/profiles")
+def save_profile(profile: PatientProfile):
+    with get_db_conn() as conn:
+        conn.execute("INSERT INTO patient_profiles (name, medications) VALUES (?, ?)", 
+                     (profile.name, json.dumps(profile.medications)))
+        conn.commit()
+    return {"status": "saved"}
+
+@app.get("/profiles")
+def get_profiles():
+    with get_db_conn() as conn:
+        rows = conn.execute("SELECT * FROM patient_profiles").fetchall()
+        return [{"id": r["id"], "name": r["name"], "medications": json.loads(r["medications"])} for r in rows]
 
 
 @app.post("/check-interactions", response_model=MedicationCheckResponse)
