@@ -3,6 +3,7 @@ import axios from "axios";
 import jsPDF from "jspdf";
 import "./App.css";
 import InteractionGraph from "./InteractionGraph";
+import Analytics from "./Analytics";
 
 const API_URL_MANUAL = "http://127.0.0.1:8000/check-interactions";
 const API_URL_EXTRACT = "http://127.0.0.1:8000/extract-and-check";
@@ -362,16 +363,21 @@ export default function App() {
     <div className="app">
       <header className="app__header">
         <div className="header-left">
-          <h1>MedGaurd AI</h1>
+          <h1 onClick={() => setMode("manual")} style={{cursor: "pointer"}}>MedGaurd AI</h1>
           <p className="app__subtitle">
             Enter medications (brand or generic names) to check for known drug-drug
             interactions.
           </p>
         </div>
         <div style={{display: "flex", flexDirection: "column", alignItems: "flex-end"}}>
-          <button className="profile-btn-header" onClick={() => setShowProfileModal(true)}>
-            {activeProfile ? `👤 ${activeProfile.name}` : "My Profile"}
-          </button>
+          <div style={{display: "flex", gap: "10px"}}>
+            <button className="profile-btn-header" style={{background: "#3b82f6"}} onClick={() => setMode("analytics")}>
+              📊 Model Analytics
+            </button>
+            <button className="profile-btn-header" onClick={() => setShowProfileModal(true)}>
+              {activeProfile ? `👤 ${activeProfile.name}` : "My Profile"}
+            </button>
+          </div>
           {activeProfile && <span style={{fontSize: "12px", color: "#10b981", marginTop: "4px", fontWeight: "bold"}}>✓ Auto-sync ON</span>}
         </div>
       </header>
@@ -477,7 +483,11 @@ export default function App() {
         </div>
       )}
 
-      <div className="mode-toggle">
+      {mode === "analytics" ? (
+        <Analytics />
+      ) : (
+        <>
+          <div className="mode-toggle">
         <button
           type="button"
           className={mode === "manual" ? "toggle-btn toggle-btn--active" : "toggle-btn"}
@@ -594,6 +604,8 @@ export default function App() {
             <ResultCard key={idx} result={result} />
           ))}
         </div>
+      )}
+        </>
       )}
     </div>
   );
