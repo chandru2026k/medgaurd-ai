@@ -447,7 +447,7 @@ export default function App() {
               • Acarbose, Pancreatin
             </li>
             <li style={{marginBottom: "8px"}}><strong style={{color: "var(--moderate)"}}>🟡 MODERATE:</strong><br/>
-              • Ibuprofen, Heparin<br/>
+              • Ibuprofen, Anticoagulants<br/>
               • Digoxin, Sympathomimetics<br/>
               • Barbiturates, Corticosteroids
             </li>
