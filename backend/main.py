@@ -137,13 +137,18 @@ def get_dictionary():
 
 class PatientProfile(BaseModel):
     name: str
+    age: Optional[int] = None
+    gender: Optional[str] = None
+    dob: Optional[str] = None
     medications: List[str]
 
 @app.post("/profiles")
 def save_profile(profile: PatientProfile):
     with get_db_conn() as conn:
-        conn.execute("INSERT INTO patient_profiles (name, medications) VALUES (?, ?)", 
-                     (profile.name, json.dumps(profile.medications)))
+        conn.execute(
+            "INSERT INTO patient_profiles (name, age, gender, dob, medications) VALUES (?, ?, ?, ?, ?)", 
+            (profile.name, profile.age, profile.gender, profile.dob, json.dumps(profile.medications))
+        )
         conn.commit()
     return {"status": "saved"}
 
@@ -151,7 +156,16 @@ def save_profile(profile: PatientProfile):
 def get_profiles():
     with get_db_conn() as conn:
         rows = conn.execute("SELECT * FROM patient_profiles").fetchall()
-        return [{"id": r["id"], "name": r["name"], "medications": json.loads(r["medications"])} for r in rows]
+        return [
+            {
+                "id": r["id"], 
+                "name": r["name"], 
+                "age": r["age"],
+                "gender": r["gender"],
+                "dob": r["dob"],
+                "medications": json.loads(r["medications"])
+            } for r in rows
+        ]
 
 
 @app.post("/check-interactions", response_model=MedicationCheckResponse)

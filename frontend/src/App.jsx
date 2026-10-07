@@ -211,6 +211,9 @@ export default function App() {
   };
 
   const [profileNameInput, setProfileNameInput] = useState("");
+  const [profileAgeInput, setProfileAgeInput] = useState("");
+  const [profileGenderInput, setProfileGenderInput] = useState("");
+  const [profileDobInput, setProfileDobInput] = useState("");
 
   const saveProfile = async () => {
     if (!profileNameInput.trim()) return alert("Please enter a profile name.");
@@ -228,9 +231,18 @@ export default function App() {
     }
     
     if (drugs.length < 1) return alert("No medications found to save.");
-    await axios.post(API_URL_PROFILES, { name: profileNameInput.trim(), medications: drugs });
+    await axios.post(API_URL_PROFILES, { 
+      name: profileNameInput.trim(), 
+      age: profileAgeInput ? parseInt(profileAgeInput) : null,
+      gender: profileGenderInput.trim() || null,
+      dob: profileDobInput.trim() || null,
+      medications: drugs 
+    });
     alert("Profile saved!");
     setProfileNameInput("");
+    setProfileAgeInput("");
+    setProfileGenderInput("");
+    setProfileDobInput("");
     fetchProfiles();
   };
 
@@ -336,15 +348,41 @@ export default function App() {
             <h2>Patient Profiles</h2>
             <p>Save your current medication list to your profile for easy checking later.</p>
             
-            <div style={{ margin: "20px 0", display: "flex", gap: "10px", alignItems: "center" }}>
+            <div style={{ margin: "20px 0", display: "flex", flexDirection: "column", gap: "10px" }}>
               <input 
                 type="text" 
                 placeholder="Enter patient name..." 
                 value={profileNameInput}
                 onChange={e => setProfileNameInput(e.target.value)}
-                style={{ flex: 1, padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
+                style={{ padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
               />
-              <button onClick={saveProfile} style={{ background: "#10b981", color: "white", padding: "8px 12px", border: "none", borderRadius: "4px", cursor: "pointer", whiteSpace: "nowrap" }}>
+              <div style={{ display: "flex", gap: "10px" }}>
+                <input 
+                  type="number" 
+                  placeholder="Age" 
+                  value={profileAgeInput}
+                  onChange={e => setProfileAgeInput(e.target.value)}
+                  style={{ flex: 1, padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
+                />
+                <select 
+                  value={profileGenderInput}
+                  onChange={e => setProfileGenderInput(e.target.value)}
+                  style={{ flex: 1, padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
+                >
+                  <option value="">Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+                <input 
+                  type="date" 
+                  title="Date of Birth"
+                  value={profileDobInput}
+                  onChange={e => setProfileDobInput(e.target.value)}
+                  style={{ flex: 1, padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
+                />
+              </div>
+              <button onClick={saveProfile} style={{ background: "#10b981", color: "white", padding: "10px 12px", border: "none", borderRadius: "4px", cursor: "pointer", width: "100%", marginTop: "10px" }}>
                 Save Profile
               </button>
             </div>
@@ -356,7 +394,11 @@ export default function App() {
               <ul style={{ listStyle: "none", padding: 0 }}>
                 {profiles.map(p => (
                   <li key={p.id} style={{ borderBottom: "1px solid #eee", padding: "10px 0" }}>
-                    <strong>{p.name}</strong> <br/>
+                    <strong>{p.name}</strong> 
+                    <span style={{ fontSize: "13px", color: "#666", marginLeft: "10px" }}>
+                      {p.age ? `${p.age} yrs` : ""} {p.gender ? `• ${p.gender}` : ""} {p.dob ? `• DOB: ${p.dob}` : ""}
+                    </span>
+                    <br/>
                     <span style={{ fontSize: "14px", color: "#666" }}>{p.medications.join(", ")}</span>
                     <br/>
                     <button 
