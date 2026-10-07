@@ -12,8 +12,14 @@ export default function ProfilePage({ activeProfile, setActiveProfile, profiles,
   const [profileAllergiesInput, setProfileAllergiesInput] = useState("");
   const [profileConditionsInput, setProfileConditionsInput] = useState("");
 
+  const [errorMsg, setErrorMsg] = useState("");
+
   const saveProfile = async () => {
-    if (!profileNameInput.trim()) return alert("Please enter a patient name.");
+    setErrorMsg("");
+    if (!profileNameInput.trim()) {
+      setErrorMsg("Please enter a patient name.");
+      return;
+    }
     
     try {
       await axios.post(API_URL_PROFILES, { 
@@ -28,7 +34,6 @@ export default function ProfilePage({ activeProfile, setActiveProfile, profiles,
         conditions: profileConditionsInput.trim() || null,
         medications: [] 
       });
-      alert("Profile created! It is now your active profile.");
       
       setProfileNameInput("");
       setProfileAgeInput("");
@@ -48,7 +53,7 @@ export default function ProfilePage({ activeProfile, setActiveProfile, profiles,
       }).catch(() => {});
     } catch (err) {
       console.error(err);
-      alert("Failed to save profile. Please check if the backend is running.");
+      setErrorMsg("Failed to save profile. Please check if the backend is running.");
     }
   };
 
@@ -115,6 +120,12 @@ export default function ProfilePage({ activeProfile, setActiveProfile, profiles,
         <div style={{ marginBottom: "40px", background: "#f8fafc", padding: "24px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
           <h3 style={{ margin: "0 0 16px 0", color: "#1e293b" }}>Register New Patient</h3>
           
+          {errorMsg && (
+             <div style={{ background: "#fee2e2", color: "#b91c1c", padding: "10px", borderRadius: "4px", marginBottom: "16px", border: "1px solid #fca5a5" }}>
+               {errorMsg}
+             </div>
+          )}
+
           <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "16px" }}>
             <input 
               type="text" placeholder="Patient Name (Required)" value={profileNameInput}
