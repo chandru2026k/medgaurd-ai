@@ -26,7 +26,7 @@ from rapidfuzz import process, fuzz
 #    unmatched brands turn up during testing.
 # ---------------------------------------------------------------------------
 BRAND_TO_GENERIC = {
-    # common OTC / general
+    # common OTC / general Indian brands
     "crocin": "paracetamol",
     "dolo": "paracetamol",
     "calpol": "paracetamol",
@@ -37,6 +37,32 @@ BRAND_TO_GENERIC = {
     "ecosprin": "aspirin",
     "glycomet": "metformin",
     "atorva": "atorvastatin",
+    "omez": "omeprazole",
+    "pan": "pantoprazole",
+    "pantocid": "pantoprazole",
+    "razo": "rabeprazole",
+    "voveran": "diclofenac",
+    "zerodol": "aceclofenac",
+    "montair": "montelukast",
+    "cetzine": "cetirizine",
+    "alerid": "cetirizine",
+    "azithral": "azithromycin",
+    "zifi": "cefixime",
+    "taxim-o": "cefixime",
+    "metrogyl": "metronidazole",
+    "flagyl": "metronidazole",
+    "mox": "amoxicillin",
+    "novamox": "amoxicillin",
+    "telma": "telmisartan",
+    "amlokind": "amlodipine",
+    "stamlo": "amlodipine",
+    "rozavel": "rosuvastatin",
+    "amaryl": "glimepiride",
+    "tenglyn": "teneligliptin",
+    "domstal": "domperidone",
+    "emeset": "ondansetron",
+    "alprax": "alprazolam",
+    "clonotril": "clonazepam",
 
     # brands present in interactions_db.csv
     "equetro": "carbamazepine",
