@@ -336,19 +336,21 @@ export default function App() {
         y = 20;
       }
       
-      // Interaction Title
+      // Interaction Title - use computed_severity (smart scorer) for consistent color + label
+      const displaySev = r.computed_severity || r.severity;
       doc.setFontSize(14);
-      if (r.found && r.severity === "High") doc.setTextColor(192, 57, 43); // Red
-      else if (r.found && r.severity === "Moderate") doc.setTextColor(181, 121, 10); // Yellow/Orange
+      if (r.found && displaySev === "Critical") doc.setTextColor(120, 0, 0); // Dark Red
+      else if (r.found && displaySev === "High") doc.setTextColor(192, 57, 43); // Red
+      else if (r.found && displaySev === "Moderate") doc.setTextColor(181, 121, 10); // Yellow/Orange
       else doc.setTextColor(47, 125, 79); // Green
-      
+
       doc.text(`${idx + 1}. ${r.drug_1} + ${r.drug_2}`, 20, y);
-      
+
       y += 8;
       doc.setFontSize(10);
       doc.setTextColor(80, 80, 80);
       if (r.found) {
-        doc.text(`Severity: ${r.severity} (Risk Score: ${r.severity_score || 'N/A'}/100)`, 20, y);
+        doc.text(`Severity: ${displaySev} (Risk Score: ${r.severity_score || 'N/A'}/100)`, 20, y);
         y += 8;
         
         // Patient Explanation
