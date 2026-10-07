@@ -32,9 +32,7 @@ from extractor import extract_drug_mentions, extract_and_normalize
 # On Windows, pytesseract can't find the tesseract binary automatically
 # unless it's on PATH. If you installed it but get a "tesseract is not
 # installed" error, uncomment and set this to your actual install path:
-#
-# pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 _env_cmd = os.environ.get("TESSERACT_CMD")
 if _env_cmd:
     pytesseract.pytesseract.tesseract_cmd = _env_cmd
