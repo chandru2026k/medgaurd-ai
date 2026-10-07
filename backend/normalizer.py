@@ -27,12 +27,13 @@ from rapidfuzz import process, fuzz
 # ---------------------------------------------------------------------------
 BRAND_TO_GENERIC = {
     # common OTC / general Indian brands
-    "crocin": "paracetamol",
-    "dolo": "paracetamol",
-    "calpol": "paracetamol",
+    "crocin": "acetaminophen",
+    "dolo": "acetaminophen",
+    "calpol": "acetaminophen",
+    "paracetamol": "acetaminophen",
     "augmentin": "amoxicillin + clavulanic acid",
     "amoxyclav": "amoxicillin + clavulanic acid",
-    "combiflam": "ibuprofen + paracetamol",
+    "combiflam": "ibuprofen + acetaminophen",
     "brufen": "ibuprofen",
     "ecosprin": "aspirin",
     "glycomet": "metformin",
