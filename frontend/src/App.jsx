@@ -223,7 +223,6 @@ export default function App() {
     if (mode === "manual" && drugsInput.trim()) {
         drugs = drugsInput.split(",").map((d) => d.trim()).filter(Boolean);
     } else if (response && response.results) {
-        // If they are on a different mode and have results, save the checked drugs
         const allDrugs = new Set();
         response.results.forEach(r => {
             allDrugs.add(r.drug_1);
@@ -232,25 +231,31 @@ export default function App() {
         drugs = Array.from(allDrugs);
     }
     
-    await axios.post(API_URL_PROFILES, { 
-      name: profileNameInput.trim(), 
-      age: profileAgeInput ? parseInt(profileAgeInput) : null,
-      gender: profileGenderInput.trim() || null,
-      dob: profileDobInput.trim() || null,
-      medications: drugs 
-    });
-    alert("Profile saved! It will automatically sync as you check interactions.");
-    setProfileNameInput("");
-    setProfileAgeInput("");
-    setProfileGenderInput("");
-    setProfileDobInput("");
-    
-    // Refresh and try to set the latest as active
-    axios.get(API_URL_PROFILES).then(res => {
-      const data = res.data || [];
-      setProfiles(data);
-      if (data.length > 0) setActiveProfile(data[data.length - 1]);
-    }).catch(() => {});
+    try {
+      await axios.post(API_URL_PROFILES, { 
+        name: profileNameInput.trim(), 
+        age: profileAgeInput ? parseInt(profileAgeInput) : null,
+        gender: profileGenderInput.trim() || null,
+        dob: profileDobInput.trim() || null,
+        medications: drugs 
+      });
+      alert("Profile saved! It will automatically sync as you check interactions.");
+      setProfileNameInput("");
+      setProfileAgeInput("");
+      setProfileGenderInput("");
+      setProfileDobInput("");
+      setShowProfileModal(false);
+      
+      // Refresh and try to set the latest as active
+      axios.get(API_URL_PROFILES).then(res => {
+        const data = res.data || [];
+        setProfiles(data);
+        if (data.length > 0) setActiveProfile(data[data.length - 1]);
+      }).catch(() => {});
+    } catch (err) {
+      console.error(err);
+      alert("Failed to save profile. Please check if the backend is running.");
+    }
   };
 
   const generatePDF = () => {
