@@ -437,10 +437,14 @@ export default function App() {
         </div>
         <div className="sidebar-widget">
           <h3>Common Interactions</h3>
-          <ul>
-            <li><strong>Paracetamol & Alcohol:</strong> Liver toxicity</li>
-            <li><strong>Antibiotics & Dairy:</strong> Reduced absorption</li>
-            <li><strong>Antihistamines & Sedatives:</strong> Excessive drowsiness</li>
+          <p style={{fontSize: "12px", color: "var(--muted)", marginBottom: "12px"}}>
+            Try searching these real combinations to see different risk levels:
+          </p>
+          <ul style={{ paddingLeft: "15px", margin: 0, fontSize: "13px" }}>
+            <li><strong style={{color: "var(--high)"}}>🔴 HIGH:</strong> Aspirin & Flurbiprofen</li>
+            <li><strong style={{color: "var(--moderate)"}}>🟡 MODERATE:</strong> Ibuprofen & Heparin</li>
+            <li><strong style={{color: "var(--low)"}}>🟢 LOW:</strong> Amiodarone & Benzodiazepines</li>
+            <li><strong>⚪ NONE:</strong> Amoxicillin & Tylenol</li>
           </ul>
         </div>
         {activeProfile && (
