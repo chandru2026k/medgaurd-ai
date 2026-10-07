@@ -4,6 +4,7 @@ import jsPDF from "jspdf";
 import "./App.css";
 import InteractionGraph from "./InteractionGraph";
 import Analytics from "./Analytics";
+import ProfilePage from "./ProfilePage";
 
 const API_URL_MANUAL = "http://127.0.0.1:8000/check-interactions";
 const API_URL_EXTRACT = "http://127.0.0.1:8000/extract-and-check";
@@ -211,68 +212,7 @@ export default function App() {
     setShowSuggestions(false);
   };
 
-  const [profileNameInput, setProfileNameInput] = useState("");
-  const [profileAgeInput, setProfileAgeInput] = useState("");
-  const [profileGenderInput, setProfileGenderInput] = useState("");
-  const [profileDobInput, setProfileDobInput] = useState("");
-  const [profileHeightInput, setProfileHeightInput] = useState("");
-  const [profileWeightInput, setProfileWeightInput] = useState("");
-  const [profileBloodInput, setProfileBloodInput] = useState("");
-  const [profileAllergiesInput, setProfileAllergiesInput] = useState("");
-  const [profileConditionsInput, setProfileConditionsInput] = useState("");
-
   const [activeProfile, setActiveProfile] = useState(null);
-
-  const saveProfile = async () => {
-    if (!profileNameInput.trim()) return alert("Please enter a profile name.");
-    let drugs = [];
-    if (mode === "manual" && drugsInput.trim()) {
-        drugs = drugsInput.split(",").map((d) => d.trim()).filter(Boolean);
-    } else if (response && response.results) {
-        const allDrugs = new Set();
-        response.results.forEach(r => {
-            allDrugs.add(r.drug_1);
-            allDrugs.add(r.drug_2);
-        });
-        drugs = Array.from(allDrugs);
-    }
-    
-    try {
-      await axios.post(API_URL_PROFILES, { 
-        name: profileNameInput.trim(), 
-        age: profileAgeInput ? parseInt(profileAgeInput) : null,
-        gender: profileGenderInput.trim() || null,
-        dob: profileDobInput.trim() || null,
-        height: profileHeightInput.trim() || null,
-        weight: profileWeightInput.trim() || null,
-        blood_type: profileBloodInput.trim() || null,
-        allergies: profileAllergiesInput.trim() || null,
-        conditions: profileConditionsInput.trim() || null,
-        medications: drugs 
-      });
-      alert("Profile saved! It will automatically sync as you check interactions.");
-      setProfileNameInput("");
-      setProfileAgeInput("");
-      setProfileGenderInput("");
-      setProfileDobInput("");
-      setProfileHeightInput("");
-      setProfileWeightInput("");
-      setProfileBloodInput("");
-      setProfileAllergiesInput("");
-      setProfileConditionsInput("");
-      setShowProfileModal(false);
-      
-      // Refresh and try to set the latest as active
-      axios.get(API_URL_PROFILES).then(res => {
-        const data = res.data || [];
-        setProfiles(data);
-        if (data.length > 0) setActiveProfile(data[data.length - 1]);
-      }).catch(() => {});
-    } catch (err) {
-      console.error(err);
-      alert("Failed to save profile. Please check if the backend is running.");
-    }
-  };
 
   const generatePDF = () => {
     const doc = new jsPDF();
@@ -372,9 +312,6 @@ export default function App() {
     }
   };
 
-  const [showProfileModal, setShowProfileModal] = useState(false);
-
-  return (
     <div className="app">
       <header className="app__header">
         <div className="header-left">
@@ -392,7 +329,7 @@ export default function App() {
             <button className="profile-btn-header" style={{background: "#3b82f6"}} onClick={() => setMode("analytics")}>
               📊 Dashboard
             </button>
-            <button className="profile-btn-header" onClick={() => setShowProfileModal(true)}>
+            <button className="profile-btn-header" style={{background: "#10b981"}} onClick={() => setMode("profile")}>
               {activeProfile ? `👤 ${activeProfile.name}` : "My Profile"}
             </button>
           </div>
@@ -400,160 +337,16 @@ export default function App() {
         </div>
       </header>
 
-      {showProfileModal && (
-        <div className="modal-overlay" onClick={() => setShowProfileModal(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setShowProfileModal(false)}>&times;</button>
-            <h2>{activeProfile ? `Profile: ${activeProfile.name}` : "Patient Profiles"}</h2>
-            {activeProfile && (
-              <div style={{ background: "#f0fdf4", padding: "12px", borderRadius: "8px", marginBottom: "20px", border: "1px solid #bbf7d0" }}>
-                <strong>Current Active Profile</strong><br/>
-                <span style={{ fontSize: "14px", color: "#374151", display: "block", marginBottom: "8px" }}>
-                  {activeProfile.age ? `${activeProfile.age} yrs` : ""} {activeProfile.gender ? `• ${activeProfile.gender}` : ""} {activeProfile.dob ? `• DOB: ${activeProfile.dob}` : ""}
-                  {activeProfile.height || activeProfile.weight || activeProfile.blood_type ? <br/> : ""}
-                  {activeProfile.height ? `Height: ${activeProfile.height} ` : ""}
-                  {activeProfile.weight ? `• Weight: ${activeProfile.weight} ` : ""}
-                  {activeProfile.blood_type ? `• Blood: ${activeProfile.blood_type}` : ""}
-                </span>
-                
-                {(activeProfile.allergies || activeProfile.conditions) && (
-                  <div style={{ fontSize: "13px", color: "#b91c1c", marginBottom: "8px", background: "#fee2e2", padding: "6px", borderRadius: "4px" }}>
-                    {activeProfile.allergies && <div><strong>Allergies:</strong> {activeProfile.allergies}</div>}
-                    {activeProfile.conditions && <div><strong>Conditions:</strong> {activeProfile.conditions}</div>}
-                  </div>
-                )}
-                
-                <span style={{ fontSize: "14px", color: "#166534", fontWeight: "500" }}>Medication History:</span>
-                <p style={{ fontSize: "14px", color: "#374151", margin: "4px 0 0 0" }}>
-                  {activeProfile.medications.length > 0 ? activeProfile.medications.join(", ") : "No medications recorded yet."}
-                </p>
-                <button 
-                  onClick={() => { setActiveProfile(null); setDrugsInput(""); setShowProfileModal(false); }}
-                  style={{ marginTop: "10px", background: "#ef4444", color: "white", padding: "4px 8px", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "12px" }}
-                >
-                  Sign Out / Clear Active Profile
-                </button>
-              </div>
-            )}
-            
-            {!activeProfile && (
-              <>
-                <p>Create a new profile to automatically save your medication history.</p>
-                <div style={{ margin: "20px 0", display: "flex", flexDirection: "column", gap: "10px" }}>
-                  <input 
-                    type="text" 
-                    placeholder="Enter patient name..." 
-                    value={profileNameInput}
-                    onChange={e => setProfileNameInput(e.target.value)}
-                    style={{ padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-                  />
-                  <div style={{ display: "flex", gap: "10px" }}>
-                    <input 
-                      type="number" 
-                      placeholder="Age" 
-                      value={profileAgeInput}
-                      onChange={e => setProfileAgeInput(e.target.value)}
-                      style={{ flex: 1, padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-                    />
-                    <select 
-                      value={profileGenderInput}
-                      onChange={e => setProfileGenderInput(e.target.value)}
-                      style={{ flex: 1, padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-                    >
-                      <option value="">Gender</option>
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                      <option value="Other">Other</option>
-                    </select>
-                    <input 
-                      type="date" 
-                      title="Date of Birth"
-                      value={profileDobInput}
-                      onChange={e => setProfileDobInput(e.target.value)}
-                      style={{ flex: 1, padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-                    />
-                  </div>
-                  
-                  <div style={{ display: "flex", gap: "10px" }}>
-                    <input 
-                      type="text" 
-                      placeholder="Height (e.g. 5'9 or 175cm)" 
-                      value={profileHeightInput}
-                      onChange={e => setProfileHeightInput(e.target.value)}
-                      style={{ flex: 1, padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-                    />
-                    <input 
-                      type="text" 
-                      placeholder="Weight (e.g. 150 lbs)" 
-                      value={profileWeightInput}
-                      onChange={e => setProfileWeightInput(e.target.value)}
-                      style={{ flex: 1, padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-                    />
-                    <input 
-                      type="text" 
-                      placeholder="Blood Type (e.g. O+)" 
-                      value={profileBloodInput}
-                      onChange={e => setProfileBloodInput(e.target.value)}
-                      style={{ flex: 1, padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-                    />
-                  </div>
-                  
-                  <input 
-                    type="text" 
-                    placeholder="Known Allergies (e.g. Penicillin, Peanuts)" 
-                    value={profileAllergiesInput}
-                    onChange={e => setProfileAllergiesInput(e.target.value)}
-                    style={{ padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-                  />
-                  <input 
-                    type="text" 
-                    placeholder="Chronic Conditions (e.g. Hypertension, Diabetes)" 
-                    value={profileConditionsInput}
-                    onChange={e => setProfileConditionsInput(e.target.value)}
-                    style={{ padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-                  />
-                  <button onClick={saveProfile} style={{ background: "#10b981", color: "white", padding: "10px 12px", border: "none", borderRadius: "4px", cursor: "pointer", width: "100%", marginTop: "10px" }}>
-                    Save Profile
-                  </button>
-                </div>
-                <hr style={{ margin: "20px 0" }}/>
-              </>
-            )}
-
-            <h3>Saved Profiles</h3>
-            {profiles.length === 0 ? <p>No profiles saved yet.</p> : (
-              <ul style={{ listStyle: "none", padding: 0 }}>
-                {profiles.map(p => (
-                  <li key={p.id} style={{ borderBottom: "1px solid #eee", padding: "10px 0" }}>
-                    <strong>{p.name}</strong> 
-                    <span style={{ fontSize: "13px", color: "#666", marginLeft: "10px" }}>
-                      {p.age ? `${p.age} yrs` : ""} {p.gender ? `• ${p.gender}` : ""} {p.dob ? `• DOB: ${p.dob}` : ""}
-                    </span>
-                    <br/>
-                    <span style={{ fontSize: "14px", color: "#666" }}>{p.medications.join(", ")}</span>
-                    <br/>
-                    {activeProfile?.id !== p.id && (
-                      <button 
-                        onClick={() => {
-                          setActiveProfile(p);
-                          setDrugsInput(p.medications.join(", "));
-                          setShowProfileModal(false);
-                        }}
-                        style={{ marginTop: "8px", background: "#3b82f6", color: "white", padding: "4px 8px", border: "none", borderRadius: "4px", cursor: "pointer" }}
-                      >
-                        Set as Active Profile
-                      </button>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </div>
-      )}
-
       {mode === "analytics" ? (
         <Analytics />
+      ) : mode === "profile" ? (
+        <ProfilePage 
+          activeProfile={activeProfile}
+          setActiveProfile={(p) => { setActiveProfile(p); if (p) setDrugsInput(p.medications.join(", ")); }}
+          profiles={profiles}
+          fetchProfiles={fetchProfiles}
+          API_URL_PROFILES={API_URL_PROFILES}
+        />
       ) : (
         <>
           <div className="mode-toggle">
