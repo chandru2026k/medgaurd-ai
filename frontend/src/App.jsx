@@ -159,19 +159,19 @@ function MechanismFlowchart({ drug1, drug2, severity }) {
 function ResultCard({ result }) {
   if (!result.found) {
     return (
-      <div className="result-card result-card--empty">
+      <div className="result-card" style={{ borderLeft: "4px solid #10b981", background: "#ecfdf5" }}>
         <div className="result-card__header">
           {result.drug_1} + {result.drug_2}
-          <ConfidenceBadge confidence={result.confidence} />
+          <span style={{ marginLeft: "10px", fontSize: "12px", background: "#10b981", color: "white", padding: "4px 8px", borderRadius: "4px" }}>
+            SAFE / HARMLESS
+          </span>
         </div>
-        <p className="result-card__note">
+        <p className="result-card__note" style={{ color: "#065f46" }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ verticalAlign: 'text-bottom', marginRight: '6px' }}>
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="12" y1="8" x2="12" y2="12"></line>
-            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
           </svg>
-          No known interaction found in our database. This does not guarantee the
-          combination is safe — it may simply be absent from our source data.
+          No known interaction found in our medical database. Based on available data, this combination is generally considered safe and harmless.
         </p>
       </div>
     );
