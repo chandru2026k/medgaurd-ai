@@ -5,6 +5,7 @@ import "./App.css";
 import InteractionGraph from "./InteractionGraph";
 import Analytics from "./Analytics";
 import ProfilePage from "./ProfilePage";
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
 const API_URL_MANUAL = "http://127.0.0.1:8000/check-interactions";
 const API_URL_EXTRACT = "http://127.0.0.1:8000/extract-and-check";
@@ -95,6 +96,66 @@ function ScoreBreakdown({ breakdown }) {
   );
 }
 
+function RiskGauge({ score }) {
+  const data = [
+    { name: "Score", value: score },
+    { name: "Remainder", value: 100 - score }
+  ];
+  const color = score >= 70 ? "#c0392b" : score >= 40 ? "#b5790a" : "#2f7d4f";
+
+  return (
+    <div style={{ width: 120, height: 60, position: "relative" }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart>
+          <Pie
+            data={data}
+            cx="50%"
+            cy="100%"
+            startAngle={180}
+            endAngle={0}
+            innerRadius={40}
+            outerRadius={55}
+            paddingAngle={0}
+            dataKey="value"
+            stroke="none"
+          >
+            <Cell fill={color} />
+            <Cell fill="#e2e8f0" />
+          </Pie>
+        </PieChart>
+      </ResponsiveContainer>
+      <div style={{ position: "absolute", bottom: 0, width: "100%", textAlign: "center", fontSize: "18px", fontWeight: "bold", color: color }}>
+        {score}
+      </div>
+    </div>
+  );
+}
+
+function MechanismFlowchart({ drug1, drug2, severity }) {
+  const color = severity === "High" ? "#c0392b" : severity === "Moderate" ? "#b5790a" : "#2f7d4f";
+  return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", margin: "20px 0", padding: "20px", background: "#f8fafc", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+      <div style={{ padding: "10px 16px", background: "white", border: "2px solid #94a3b8", borderRadius: "6px", fontWeight: "bold", textAlign: "center", width: "120px" }}>
+        {drug1}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", color: "#64748b" }}>
+        <span style={{ fontSize: "20px" }}>→</span>
+        <span style={{ fontSize: "11px", fontWeight: "bold", textTransform: "uppercase" }}>Interacts with</span>
+      </div>
+      <div style={{ padding: "12px", background: color, color: "white", borderRadius: "50%", width: "80px", height: "80px", display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", fontSize: "12px", fontWeight: "bold", boxShadow: "0 4px 6px rgba(0,0,0,0.1)" }}>
+        {severity} Risk
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", color: "#64748b" }}>
+        <span style={{ fontSize: "20px" }}>←</span>
+        <span style={{ fontSize: "11px", fontWeight: "bold", textTransform: "uppercase" }}>Interacts with</span>
+      </div>
+      <div style={{ padding: "10px 16px", background: "white", border: "2px solid #94a3b8", borderRadius: "6px", fontWeight: "bold", textAlign: "center", width: "120px" }}>
+        {drug2}
+      </div>
+    </div>
+  );
+}
+
 function ResultCard({ result }) {
   if (!result.found) {
     return (
@@ -122,21 +183,22 @@ function ResultCard({ result }) {
         {result.drug_1} + {result.drug_2}
         <ConfidenceBadge confidence={result.confidence} />
       </div>
-
-      <div className="result-card__meta">
-        <span className="severity-pill">{result.severity} severity</span>
-        {result.computed_severity && (
-          <span className="score-pill">
-            score {result.severity_score}/100 → {result.computed_severity}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+        <div className="result-card__meta" style={{ margin: 0 }}>
+          <span className="severity-pill">{result.severity} severity</span>
+          <span className="relation-type">{result.relation_type}</span>
+          <span className="mention-count">
+            seen {result.mention_count} time{result.mention_count === 1 ? "" : "s"} in source data
           </span>
+        </div>
+        {result.severity_score !== undefined && (
+          <RiskGauge score={result.severity_score} />
         )}
-        <span className="relation-type">{result.relation_type}</span>
-        <span className="mention-count">
-          seen {result.mention_count} time{result.mention_count === 1 ? "" : "s"} in source data
-        </span>
       </div>
 
       <ScoreBreakdown breakdown={result.score_breakdown} />
+      
+      <MechanismFlowchart drug1={result.drug_1} drug2={result.drug_2} severity={result.computed_severity || result.severity} />
 
       {result.evidence_sentence && (
         <p className="evidence">“{result.evidence_sentence}”</p>
