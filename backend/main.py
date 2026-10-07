@@ -140,14 +140,19 @@ class PatientProfile(BaseModel):
     age: Optional[int] = None
     gender: Optional[str] = None
     dob: Optional[str] = None
+    height: Optional[str] = None
+    weight: Optional[str] = None
+    blood_type: Optional[str] = None
+    allergies: Optional[str] = None
+    conditions: Optional[str] = None
     medications: List[str]
 
 @app.post("/profiles")
 def save_profile(profile: PatientProfile):
     with get_db_conn() as conn:
         conn.execute(
-            "INSERT INTO patient_profiles (name, age, gender, dob, medications) VALUES (?, ?, ?, ?, ?)", 
-            (profile.name, profile.age, profile.gender, profile.dob, json.dumps(profile.medications))
+            "INSERT INTO patient_profiles (name, age, gender, dob, height, weight, blood_type, allergies, conditions, medications) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
+            (profile.name, profile.age, profile.gender, profile.dob, profile.height, profile.weight, profile.blood_type, profile.allergies, profile.conditions, json.dumps(profile.medications))
         )
         conn.commit()
     return {"status": "saved"}
@@ -176,6 +181,11 @@ def get_profiles():
                 "age": r["age"],
                 "gender": r["gender"],
                 "dob": r["dob"],
+                "height": r["height"],
+                "weight": r["weight"],
+                "blood_type": r["blood_type"],
+                "allergies": r["allergies"],
+                "conditions": r["conditions"],
                 "medications": json.loads(r["medications"])
             } for r in rows
         ]
