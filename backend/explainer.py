@@ -112,19 +112,41 @@ def _build_patient_explanation(interaction) -> str:
     symptoms_found = []
     if interaction.evidence_sentence:
         text = interaction.evidence_sentence.lower()
-        symptom_keywords = [
-            "bleeding", "hemorrhage", "toxicity", "arrhythmia", "myopathy", "rhabdomyolysis",
-            "qt prolongation", "bone marrow depression", "hypoglycemia", "hyperkalemia",
-            "kidney damage", "renal failure", "liver damage", "hepatotoxicity", "seizures",
-            "serotonin syndrome", "respiratory depression", "drowsiness", "dizziness"
-        ]
-        for s in symptom_keywords:
-            if s in text:
-                symptoms_found.append(s)
+        symptom_map = {
+            "bleeding": "unusual bleeding or bruising",
+            "hemorrhage": "severe internal bleeding",
+            "toxicity": "a toxic build-up in your system",
+            "arrhythmia": "irregular heartbeat or palpitations",
+            "myopathy": "muscle pain or weakness",
+            "rhabdomyolysis": "severe muscle breakdown",
+            "qt prolongation": "abnormal heart rhythms",
+            "bone marrow depression": "weakened immune system and extreme tiredness",
+            "hypoglycemia": "low blood sugar (shaking, sweating, dizziness)",
+            "hyperkalemia": "high potassium (muscle weakness, irregular heart rate)",
+            "kidney": "kidney strain or changes in urination",
+            "renal": "kidney strain",
+            "liver": "liver strain (yellowing eyes, stomach ache)",
+            "hepatotoxicity": "liver damage (nausea, severe stomach ache)",
+            "seizures": "seizures",
+            "serotonin syndrome": "agitation, confusion, and rapid heart rate",
+            "respiratory depression": "dangerously slow or shallow breathing",
+            "drowsiness": "feeling very tired, groggy, or oversleeping",
+            "somnolence": "extreme sleepiness or oversleeping",
+            "dizziness": "dizziness or lightheadedness",
+            "gastrointestinal": "stomach ache, nausea, or upset stomach",
+            "nausea": "feeling sick to your stomach",
+            "fatigue": "unusual tiredness or feeling drained",
+            "reduce the effect": "one of the medications not working as well as it should",
+            "decrease the effect": "one of the medications not working as well as it should"
+        }
+        
+        for med_term, friendly_symptom in symptom_map.items():
+            if med_term in text and friendly_symptom not in symptoms_found:
+                symptoms_found.append(friendly_symptom)
                 
     symptom_text = ""
     if symptoms_found:
-        symptom_text = f" Specifically, source literature mentions risks such as **{', '.join(symptoms_found)}**."
+        symptom_text = f" You might notice things like **{', '.join(symptoms_found)}**."
 
     return (
         f"{interaction.drug_1_input} and {interaction.drug_2_input} have a known "
