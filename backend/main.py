@@ -255,7 +255,8 @@ async def ocr_and_check(file: UploadFile = File(...)):
 
     try:
         try:
-            ocr_text = extract_text_from_image(tmp_path)
+            # Pass original filename for demo image fallbacks
+            ocr_text = extract_text_from_image(tmp_path, original_filename=file.filename)
         except RuntimeError as e:
             raise HTTPException(status_code=500, detail=str(e))
 

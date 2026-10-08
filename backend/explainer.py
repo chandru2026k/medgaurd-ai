@@ -101,17 +101,35 @@ def _build_patient_explanation(interaction) -> str:
         )
 
     relation_explanations = {
-        "effect": "Taking these together can cause one or both of the medications to have an unexpectedly stronger or weaker effect on your body than intended.",
-        "mechanism": "Taking these together can change how your body absorbs or processes the medications, which might lead to too much or too little of the drug in your system.",
-        "advise": "Medical guidelines suggest taking special precautions when using these together, such as spacing out when you take them or keeping a closer eye on your symptoms.",
+        "effect": "Taking these together can cause one or both of the medications to have an unexpectedly stronger or weaker effect on your body.",
+        "mechanism": "Taking these together can change how your body absorbs or processes the medications.",
+        "advise": "Medical guidelines suggest taking special precautions when using these together.",
         "int": "These medications can interact with each other in a way that might alter how they work."
     }
     mech_phrase = relation_explanations.get(interaction.relation_type, "These medications can interact with each other.")
 
+    # Try to extract actual symptoms from evidence
+    symptoms_found = []
+    if interaction.evidence_sentence:
+        text = interaction.evidence_sentence.lower()
+        symptom_keywords = [
+            "bleeding", "hemorrhage", "toxicity", "arrhythmia", "myopathy", "rhabdomyolysis",
+            "qt prolongation", "bone marrow depression", "hypoglycemia", "hyperkalemia",
+            "kidney damage", "renal failure", "liver damage", "hepatotoxicity", "seizures",
+            "serotonin syndrome", "respiratory depression", "drowsiness", "dizziness"
+        ]
+        for s in symptom_keywords:
+            if s in text:
+                symptoms_found.append(s)
+                
+    symptom_text = ""
+    if symptoms_found:
+        symptom_text = f" Specifically, source literature mentions risks such as **{', '.join(symptoms_found)}**."
+
     return (
         f"{interaction.drug_1_input} and {interaction.drug_2_input} have a known "
         f"interaction that is {sev['patient']}.\n\n"
-        f"**What happens:** {mech_phrase}\n\n"
+        f"**What happens:** {mech_phrase}{symptom_text}\n\n"
         f"**What you should do:** {urgency_phrase.capitalize()}.{hedge} Please tell your doctor or pharmacist that "
         f"you're taking both of these so they can advise you — don't stop or "
         f"change either medication on your own."
